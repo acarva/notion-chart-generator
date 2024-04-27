@@ -29,6 +29,8 @@ const AssumptionMap = (ctx, {
         extraMargin: assumptionRadius, 
         arrowSize
     });
+    const assumptionColor = ({ id }) => colorPalette[(id-1)%colorPalette.length];
+
     const assumptionMap = {
         drawBackground: () => { 
             chart.drawBackground(); 
@@ -49,7 +51,7 @@ const AssumptionMap = (ctx, {
             const drawAssumptionDot = ({ assumption }) => {
                 //drawing assumption dot
                 ctx.beginPath();
-                ctx.fillStyle = colorPalette[assumption.id % colorPalette.length];
+                ctx.fillStyle = assumptionColor(assumption);
                 ctx.beginPath();
                 ctx.arc(
                     assumption.uncertainty * (width/assumptionScale) + startGridX, 
@@ -62,7 +64,7 @@ const AssumptionMap = (ctx, {
             }
             const drawAssumptionIdxLabel = ({ assumption }) => {
                 // drawing assumption label
-                ctx.fillStyle = colorPalette[assumption.id % colorPalette.length];
+                ctx.fillStyle = assumptionColor(assumption);
 
                 ctx.fillText(
                     `A${assumption.id}`, 
@@ -88,7 +90,7 @@ const AssumptionMap = (ctx, {
                 const lineBB = ctx.measureText("line");
                 const lineHeight = lineBB.fontBoundingBoxAscent + lineBB.fontBoundingBoxDescent;
 
-                ctx.fillStyle = colorPalette[assumption.id % colorPalette.length];
+                ctx.fillStyle = assumptionColor(assumption);
                 
                 assumptionNameLines.map((line, lineIdx) => {                
                     ctx.fillText(
