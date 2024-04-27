@@ -1,0 +1,69 @@
+<html width="100%" height="100%">
+<head>
+    <title> Another simple HTML example
+    </title>
+</head>
+
+<body style="background-color: #fafafa;">
+    <script src="./src/chart.js"></script> 
+    <div style="min-width: 100%; width: 100%; text-align: center;">
+        <div>
+            <canvas id="assumptionMatrix" width="590" height="590" style="display: block; border:1px solid #000;">
+            </canvas>
+        </div>
+        <div style="margin-top: 50px; min-width: 100%; text-align: left;">
+            <button id="downloadAssumptions">Download Assumptions</button>
+        </div>
+    </div>
+
+    <script>
+        const chartConfig = {
+            textMargin: 5,
+            margin: 40,
+            height: 500,
+            width: 500,
+            arrowSize: 5,
+            assumptionRadius: 10,
+            assumptionScale: 10,
+            maxLabelWidth: 80
+        };
+
+        const canvas = document.getElementById("assumptionMatrix");
+        const ctx = canvas.getContext("2d");
+        const params = new URLSearchParams(window.location.search);
+
+        const chart = Chart(ctx, chartConfig);
+
+        chart.drawYAxis("Criticality");
+
+        chart.drawXAxis("Uncertainty");
+
+        chart.drawAssumptions({
+            assumptions: params.getAll("assumptions[]").map(assumption => {
+                const params = new URLSearchParams(assumption);
+                const assumptionObj = {
+                    name: params.get("name"),
+                    criticality: parseInt(params.get("criticality"), 10),
+                    uncertainty: parseInt(params.get("uncertainty"), 10)
+                };
+                return assumptionObj;
+            }),
+            opacity: 0.8
+        })
+    </script>
+    <script>
+        document.querySelector('#downloadAssumptions').addEventListener('click', ()=> {
+            var canvas = document.querySelector("#assumptionMatrix");
+            var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            
+            var element = document.createElement('a');
+            var filename = 'assumptions.png';
+            element.setAttribute('href', image);
+            element.setAttribute('download', filename);
+
+            element.click();
+        })
+    </script>
+</body>
+</html>
+
