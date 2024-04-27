@@ -17,7 +17,7 @@
             <div class="control-container vertical">
                 <div class="control-container horizontal">
                     <label>Opacity:</label>
-                    <input type="range" id="opacityScale" min="0" max="10" value="8" />
+                    <input type="range" id="opacityScale" min="0" max="10" value="10" />
                 </div>
                 <textarea id="assumptionsInput" width="100%"></textarea>
                 <div height="80" class="control-container horizontal">
@@ -46,18 +46,7 @@
 
         const chart = AssumptionMap(ctx, chartConfig);
 
-        chart.clear().drawAssumptions({
-            assumptions: params.getAll("assumptions[]").map(assumption => {
-                const params = new URLSearchParams(assumption);
-                const assumptionObj = {
-                    name: params.get("name"),
-                    criticality: parseInt(params.get("criticality"), 10),
-                    uncertainty: parseInt(params.get("uncertainty"), 10)
-                };
-                return assumptionObj;
-            }),
-            opacity: 0.8
-        });
+        chart.clear();
 
         document.getElementById('drawAssumptions').addEventListener('click', () => {
             const opacity = document.getElementById("opacityScale").value / 10;
@@ -65,9 +54,10 @@
             const assumptions = assumptionsText.split("\n").map(assumptionLine => {
                 const assumptionData = assumptionLine.split("\t");
                 return {
-                    name: assumptionData[0].trim(),
-                    uncertainty: assumptionData[1].trim(),
-                    criticality: assumptionData[2].trim()
+                    id: parseInt(assumptionData[0].trim(), 10),
+                    name: assumptionData[1].trim(),
+                    uncertainty: assumptionData[2].trim(),
+                    criticality: assumptionData[3].trim()
                 };
             })
             chart.clear().drawAssumptions({

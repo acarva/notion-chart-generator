@@ -9,7 +9,6 @@ const AssumptionMap = (ctx, {
     maxLabelWidth
 }) => {
     const fullHeight = height+margin*2+assumptionRadius;
-
     const colorPalette = [
         "#937264", // Notion Brown
         "#FFA344", // Notion Orange
@@ -47,10 +46,10 @@ const AssumptionMap = (ctx, {
             const startGridX = margin;
             const startGridY = fullHeight - margin;
 
-            const drawAssumptionDot = ({ assumption, idx }) => {
+            const drawAssumptionDot = ({ assumption }) => {
                 //drawing assumption dot
                 ctx.beginPath();
-                ctx.fillStyle = colorPalette[idx % colorPalette.length];
+                ctx.fillStyle = colorPalette[assumption.id % colorPalette.length];
                 ctx.beginPath();
                 ctx.arc(
                     assumption.uncertainty * (width/assumptionScale) + startGridX, 
@@ -61,18 +60,18 @@ const AssumptionMap = (ctx, {
                 );
                 ctx.fill();
             }
-            const drawAssumptionIdxLabel = ({ assumption, idx }) => {
+            const drawAssumptionIdxLabel = ({ assumption }) => {
                 // drawing assumption label
-                ctx.fillStyle = colorPalette[idx % colorPalette.length];
+                ctx.fillStyle = colorPalette[assumption.id % colorPalette.length];
 
                 ctx.fillText(
-                    `A${idx + 1}`, 
+                    `A${assumption.id}`, 
                     startGridX + assumption.uncertainty * (width / assumptionScale) + assumptionRadius, 
                     startGridY - assumption.criticality * (height / assumptionScale) + 5 + assumptionRadius*2
                 );
             }
-            const drawAssumptionFullLabel = ({assumption, idx}) => {
-                const assumptionNameWords = assumption.name.match(/A\d+ - (.*)/)[1].split(" ");
+            const drawAssumptionFullLabel = ({ assumption }) => {
+                const assumptionNameWords = assumption.name.split(" ");
                 const assumptionNameLines = [];
                 for (let i = 0, labelWidth = 0; i < assumptionNameWords.length; i++) {
                     const wordWidth = ctx.measureText(assumptionNameWords[i]).width;
@@ -89,7 +88,7 @@ const AssumptionMap = (ctx, {
                 const lineBB = ctx.measureText("line");
                 const lineHeight = lineBB.fontBoundingBoxAscent + lineBB.fontBoundingBoxDescent;
 
-                ctx.fillStyle = colorPalette[idx % colorPalette.length];
+                ctx.fillStyle = colorPalette[assumption.id % colorPalette.length];
                 
                 assumptionNameLines.map((line, lineIdx) => {                
                     ctx.fillText(
@@ -100,17 +99,16 @@ const AssumptionMap = (ctx, {
                 })
             }
 
-            assumptions.map((assumption, idx) => {
+            assumptions.map((assumption) => {
                 ctx.textAlign = "right";
                 ctx.globalAlpha = opacity;
-                drawAssumptionDot({ assumption, idx });
+                drawAssumptionDot({ assumption });
 
                 ctx.font = "0.8em sans-serif";
-                drawAssumptionIdxLabel({ assumption, idx });
+                drawAssumptionIdxLabel({ assumption });
 
                 ctx.font = "0.6em sans-serif";
-                ctx.font = "0.8em sans-serif";
-                drawAssumptionFullLabel({ assumption, idx });
+                drawAssumptionFullLabel({ assumption });
             })
 
             return assumptionMap;
