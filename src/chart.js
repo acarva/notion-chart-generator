@@ -3,27 +3,19 @@ const Chart = (ctx, {
     height, 
     margin, 
     textMargin, 
-    assumptionRadius, 
-    assumptionScale,
-    arrowSize,
-    maxLabelWidth
+    extraMargin,
+    arrowSize
 }) => {
-    const fullWidth =  width+margin*2+assumptionRadius;
-    const fullHeight = height+margin*2+assumptionRadius;
+    const fullWidth =  width+margin*2+extraMargin;
+    const fullHeight = height+margin*2+extraMargin;
 
-    const colorPalette = [
-        "#937264", // Notion Brown
-        "#FFA344", // Notion Orange
-        "#FFDC49", // Notion Yellow
-        "#4DAB9A", // Notion Green
-        "#529CCA", // Notion Blue
-        "#9A6DD7", // Notion Purple
-        "#E255A1", // Notion Pink
-        "#FF7369", // Notion Red
-        "#979A9B" // Notion Grey
-    ];
+    const chart = {
+        drawBackground: () => {
+            ctx.fillStyle = "white";            
+            ctx.fillRect(0, 0, fullWidth, fullHeight);
 
-    return {
+            return chart;
+        },
         drawYAxis: label => {
             const axisStartY = fullHeight-textMargin;
             const axisEndY = textMargin;
@@ -55,6 +47,8 @@ const Chart = (ctx, {
             ctx.lineTo(axisX - arrowSize, axisEndY + arrowSize);
 
             ctx.stroke();
+
+            return chart;
         },
         drawXAxis: label => {
             const axisStartX = textMargin;
@@ -82,76 +76,16 @@ const Chart = (ctx, {
             ctx.lineTo(axisEndX - arrowSize, axisY + arrowSize);
 
             ctx.stroke();
+
+            return chart;
         },
-        drawAssumptions: ({ assumptions, opacity}) => {
-            const startGridX = margin;
-            const startGridY = fullHeight - margin;
-
-            const drawAssumptionDot = ({ assumption, idx }) => {
-                //drawing assumption dot
-                ctx.beginPath();
-                ctx.fillStyle = colorPalette[idx % colorPalette.length];
-                ctx.beginPath();
-                ctx.arc(
-                    assumption.uncertainty * (width/assumptionScale) + startGridX, 
-                    startGridY - (assumption.criticality * (height/assumptionScale)), 
-                    assumptionRadius, 
-                    -assumptionRadius, 
-                    2 * Math.PI
-                );
-                ctx.fill();
-            }
-            const drawAssumptionIdxLabel = ({ assumption, idx }) => {
-                // drawing assumption label
-                ctx.fillStyle = colorPalette[idx % colorPalette.length];
-
-                ctx.fillText(
-                    `A${idx + 1}`, 
-                    startGridX + assumption.uncertainty * (width / assumptionScale) + assumptionRadius, 
-                    startGridY - assumption.criticality * (height / assumptionScale) + 5 + assumptionRadius*2
-                );
-            }
-            const drawAssumptionFullLabel = ({assumption, idx}) => {
-                const assumptionNameWords = assumption.name.match(/A\d+ - (.*)/)[1].split(" ");
-                const assumptionNameLines = [];
-                for (let i = 0, labelWidth = 0; i < assumptionNameWords.length; i++) {
-                    const wordWidth = ctx.measureText(assumptionNameWords[i]).width;
-                    labelWidth += wordWidth;
-                    
-                    if (i == 0 || labelWidth > maxLabelWidth) {
-                        assumptionNameLines.push(assumptionNameWords[i]);
-                        labelWidth = wordWidth;
-                    } else {
-                        assumptionNameLines[assumptionNameLines.length-1] += ` ${assumptionNameWords[i]}`;
-                    }
-                }   
-
-                const lineBB = ctx.measureText("line");
-                const lineHeight = lineBB.fontBoundingBoxAscent + lineBB.fontBoundingBoxDescent;
-
-                ctx.fillStyle = colorPalette[idx % colorPalette.length];
-                
-                assumptionNameLines.map((line, lineIdx) => {                
-                    ctx.fillText(
-                        line,
-                        startGridX + assumption.uncertainty * (width/assumptionScale) + assumptionRadius,
-                        startGridY - assumption.criticality * (height/assumptionScale) + 5 + assumptionRadius*2 + lineHeight * (lineIdx + 1)
-                    );
-                })
-            }
-
-            assumptions.map((assumption, idx) => {
-                ctx.textAlign = "right";
-                ctx.globalAlpha = opacity;
-                drawAssumptionDot({ assumption, idx });
-
-                ctx.font = "0.8em sans-serif";
-                drawAssumptionIdxLabel({ assumption, idx });
-
-                ctx.font = "0.6em sans-serif";
-                ctx.font = "0.8em sans-serif";
-                drawAssumptionFullLabel({ assumption, idx });
-            })
+        clear: () => {
+            chart.drawBackground();
+            chart.drawYAxis();
+            chart.drawXAxis();
+            return chart;
         }
     };
+
+    return chart;
 };

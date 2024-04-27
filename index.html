@@ -6,13 +6,18 @@
 
 <body style="background-color: #fafafa;">
     <script src="./src/chart.js"></script> 
-    <div style="min-width: 100%; width: 100%; text-align: center;">
+    <script src="./src/assumption.map.js"></script> 
+    <div style="min-width: 100%; max-width: 100%; text-align: center; display: flex; flex-direction: row; gap: 20px;">
         <div>
             <canvas id="assumptionMatrix" width="590" height="590" style="display: block; border:1px solid #000;">
             </canvas>
         </div>
-        <div style="margin-top: 50px; min-width: 100%; text-align: left;">
-            <button id="downloadAssumptions">Download Assumptions</button>
+        <div style="flex-grow:1; text-align: center; display: flex; flex-direction: column; gap: 20px;">
+            <textarea id="assumptionsInput" width="100%" style="flex-grow: 1;"></textarea>
+            <div height="80" style="display: flex; flex-direction: row; gap: 20px;">
+                <button id="drawAssumptions" height="80" style="flex-grow: 1;">Draw</button>
+                <button id="downloadAssumptions" height="30" style="flex-grow: 1;">Download</button>
+            </div>
         </div>
     </div>
 
@@ -32,13 +37,9 @@
         const ctx = canvas.getContext("2d");
         const params = new URLSearchParams(window.location.search);
 
-        const chart = Chart(ctx, chartConfig);
+        const chart = AssumptionMap(ctx, chartConfig);
 
-        chart.drawYAxis("Criticality");
-
-        chart.drawXAxis("Uncertainty");
-
-        chart.drawAssumptions({
+        chart.clear().drawAssumptions({
             assumptions: params.getAll("assumptions[]").map(assumption => {
                 const params = new URLSearchParams(assumption);
                 const assumptionObj = {
@@ -49,10 +50,26 @@
                 return assumptionObj;
             }),
             opacity: 0.8
-        })
+        });
+
+        document.getElementById('drawAssumptions').addEventListener('click', () => {
+            const assumptionsText = document.getElementById("assumptionsInput").value;
+            const assumptions = assumptionsText.split("\n").map(assumptionLine => {
+                const assumptionData = assumptionLine.split("\t");
+                return {
+                    name: assumptionData[0],
+                    uncertainty: assumptionData[1],
+                    criticality: assumptionData[2]
+                };
+            })
+            chart.clear().drawAssumptions({
+                assumptions,
+                opacity: 0.8
+            })
+        });
     </script>
     <script>
-        document.querySelector('#downloadAssumptions').addEventListener('click', ()=> {
+        document.getElementById('downloadAssumptions').addEventListener('click', ()=> {
             var canvas = document.querySelector("#assumptionMatrix");
             var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
             
@@ -63,6 +80,8 @@
 
             element.click();
         })
+    </script>
+    <script>
     </script>
 </body>
 </html>
