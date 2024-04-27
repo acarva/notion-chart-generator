@@ -2,21 +2,26 @@
 <head>
     <title> Another simple HTML example
     </title>
+    <link rel="stylesheet" href="./style/index.css"></style>
 </head>
 
-<body style="background-color: #fafafa;">
+<body>
     <script src="./src/chart.js"></script> 
     <script src="./src/assumption.map.js"></script> 
-    <div style="min-width: 100%; max-width: 100%; text-align: center; display: flex; flex-direction: row; gap: 20px;">
+    <div class="control-container horizontal">
         <div>
-            <canvas id="assumptionMatrix" width="590" height="590" style="display: block; border:1px solid #000;">
+            <canvas id="assumptionMatrix" width="590" height="590">
             </canvas>
         </div>
-        <div style="flex-grow:1; text-align: center; display: flex; flex-direction: column; gap: 20px;">
-            <textarea id="assumptionsInput" width="100%" style="flex-grow: 1;"></textarea>
-            <div height="80" style="display: flex; flex-direction: row; gap: 20px;">
-                <button id="drawAssumptions" height="80" style="flex-grow: 1;">Draw</button>
-                <button id="downloadAssumptions" height="30" style="flex-grow: 1;">Download</button>
+        <div class="control-container vertical">
+            <div class="control-container horizontal">
+                <label>Opacity:</label>
+                <input type="range" id="opacityScale" min="0" max="10" value="8" />
+            </div>
+            <textarea id="assumptionsInput" width="100%"></textarea>
+            <div height="80" class="control-container horizontal">
+                <input type="button" id="drawAssumptions" height="80" value="Draw"></input>
+                <input type="button" id="downloadAssumptions" height="80" value="Download"></input>
             </div>
         </div>
     </div>
@@ -53,18 +58,19 @@
         });
 
         document.getElementById('drawAssumptions').addEventListener('click', () => {
+            const opacity = document.getElementById("opacityScale").value / 10;
             const assumptionsText = document.getElementById("assumptionsInput").value;
             const assumptions = assumptionsText.split("\n").map(assumptionLine => {
                 const assumptionData = assumptionLine.split("\t");
                 return {
-                    name: assumptionData[0],
-                    uncertainty: assumptionData[1],
-                    criticality: assumptionData[2]
+                    name: assumptionData[0].trim(),
+                    uncertainty: assumptionData[1].trim(),
+                    criticality: assumptionData[2].trim()
                 };
             })
             chart.clear().drawAssumptions({
                 assumptions,
-                opacity: 0.8
+                opacity
             })
         });
     </script>
